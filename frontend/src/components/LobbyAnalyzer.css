@@ -1,0 +1,91 @@
+/* frontend/src/components/LobbyAnalyzer.css */
+
+.error-message {
+  color: #ff4d4d;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.analysis-result {
+  margin-top: 25px;
+  background-color: var(--tg-theme-secondary-bg-color);
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.win-probability {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.win-probability h2 {
+  margin: 0 0 10px;
+  color: var(--tg-theme-hint-color);
+}
+
+.win-probability p {
+  margin: 0;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.win-probability p.win {
+  color: #4caf50; /* Зеленый для победы */
+}
+
+.win-probability p.loss {
+  color: #f44336; /* Красный для поражения */
+}
+
+.weak-link {
+  text-align: center;
+  background-color: rgba(255, 153, 0, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.weak-link h3 {
+  margin: 0 0 5px;
+  color: var(--tg-theme-link-color);
+}
+
+.weak-link p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.teams-container {
+  display: flex;
+  gap: 15px;
+}
+
+.team {
+  flex: 1;
+}
+
+.team h4 {
+  text-align: center;
+  color: var(--tg-theme-hint-color);
+  margin-bottom: 10px;
+}
+
+.player-card {
+  background-color: #3a3a3a;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.player-nickname {
+  margin: 0 0 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.player-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+}

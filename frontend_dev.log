@@ -1,0 +1,90 @@
+
+> frontend@0.1.0 start
+> react-scripts start
+
+(node:3798) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3798) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Failed to compile.
+
+Module not found: Error: Can't resolve './reportWebVitals' in '/app/frontend/src'
+ERROR in ./src/index.tsx 8:0-48
+Module not found: Error: Can't resolve './reportWebVitals' in '/app/frontend/src'
+
+webpack compiled with 1 error
+ERROR in src/index.tsx:5:29
+TS2307: Cannot find module './reportWebVitals' or its corresponding type declarations.
+    3 | import './index.css';
+    4 | import App from './App';
+  > 5 | import reportWebVitals from './reportWebVitals';
+      |                             ^^^^^^^^^^^^^^^^^^^
+    6 |
+    7 | const root = ReactDOM.createRoot(
+    8 |   document.getElementById('root') as HTMLElement
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+No issues found.
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Failed to compile.
+
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/index.js'
+LOG from webpack.FileSystemInfo
+<w> Managed item /app/frontend/node_modules/react isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
++ 8 hidden lines
+
+ERROR in ./node_modules/react/index.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/index.js'
+
+ERROR in ./node_modules/react/jsx-dev-runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/jsx-dev-runtime.js'
+
+webpack compiled with 2 errors
+No issues found.
+Compiling...
+Failed to compile.
+
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/index.js'
+LOG from webpack.FileSystemInfo
+<w> Managed item /app/frontend/node_modules/react isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
++ 16 hidden lines
+
+ERROR in ./node_modules/react/index.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/index.js'
+
+ERROR in ./node_modules/react/jsx-dev-runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/jsx-dev-runtime.js'
+
+webpack compiled with 2 errors
+No issues found.
