@@ -1,0 +1,73 @@
+/* frontend/src/index.css */
+
+/* Устанавливаем переменные для нашей цветовой схемы */
+:root {
+  --tg-theme-bg-color: #1a1a1a; /* Темный фон */
+  --tg-theme-text-color: #ffffff; /* Белый текст */
+  --tg-theme-hint-color: #aaaaaa; /* Серый для подсказок */
+  --tg-theme-link-color: #ff9900; /* Яркий оранжевый для ссылок и акцентов */
+  --tg-theme-button-color: #ff9900; /* Оранжевый для кнопок */
+  --tg-theme-button-text-color: #ffffff; /* Белый текст на кнопках */
+  --tg-theme-secondary-bg-color: #2c2c2c; /* Более светлый фон для карточек/элементов */
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Применяем наши переменные */
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+}
+
+/* Общие стили для контейнера приложения */
+.App {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Стили для полей ввода */
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--tg-theme-secondary-bg-color);
+  background-color: var(--tg-theme-secondary-bg-color);
+  color: var(--tg-theme-text-color);
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--tg-theme-link-color);
+}
+
+/* Стили для кнопок */
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #e68a00; /* Более темный оранжевый при наведении */
+}
+
+button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}

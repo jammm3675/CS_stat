@@ -1,0 +1,28 @@
+#-*- mode: gitignore -*-
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+# FastAPI
+.venv/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Environment variables
+.env
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
