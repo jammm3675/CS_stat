@@ -2,6 +2,7 @@
 
 import httpx
 import os
+from async_lru import alru_cache
 
 # Базовый URL для FACEIT Data API v4
 BASE_URL = "https://open.faceit.com/data/v4"
@@ -21,6 +22,7 @@ HEADERS = {
 
 # --- Функции-хелперы для работы с FACEIT API ---
 
+@alru_cache(maxsize=256, ttl=300) # Кэш на 5 минут
 async def get_player_id(nickname: str) -> str:
     """Получает ID игрока по его никнейму."""
     async with httpx.AsyncClient() as client:
@@ -54,6 +56,7 @@ async def get_active_match_id(player_id: str) -> str:
         return None
 
 
+@alru_cache(maxsize=32, ttl=60) # Кэш на 1 минуту
 async def get_match_details(match_id: str) -> dict:
     """Получает детальную информацию о матче, включая команды."""
     async with httpx.AsyncClient() as client:
@@ -61,6 +64,7 @@ async def get_match_details(match_id: str) -> dict:
         response.raise_for_status()
         return response.json()
 
+@alru_cache(maxsize=256, ttl=300) # Кэш на 5 минут
 async def get_player_stats(player_id: str) -> dict:
     """Получает статистику игрока для CS2/CSGO."""
     async with httpx.AsyncClient() as client:
@@ -72,9 +76,33 @@ async def get_player_stats(player_id: str) -> dict:
         response.raise_for_status()
         return response.json()
 
+@alru_cache(maxsize=128, ttl=300) # Кэш на 5 минут
 async def get_player_match_history(player_id: str, limit: int = 5) -> list:
     """Получает историю последних матчей игрока."""
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{BASE_URL}/players/{player_id}/history?game=cs2&offset=0&limit={limit}", headers=HEADERS)
         response.raise_for_status()
         return response.json().get("items", [])
+
+@alru_cache(maxsize=256, ttl=300) # Кэш на 5 минут
+async def get_player_stats_for_map(player_id: str, map_name: str) -> dict:
+    """Получает статистику игрока для CS2 на определенной карте."""
+    async with httpx.AsyncClient() as client:
+        # У FACEIT API нет прямого эндпоинта для статистики по картам.
+        # Мы будем агрегировать ее из истории матчей.
+        response = await client.get(f"{BASE_URL}/players/{player_id}/history?game=cs2&offset=0&limit=100", headers=HEADERS)
+        response.raise_for_status()
+
+        matches = response.json().get("items", [])
+        map_stats = {'wins': 0, 'matches': 0, 'win_rate': 0}
+
+        for match in matches:
+            if match.get('i1') == map_name: # i1 - название карты
+                map_stats['matches'] += 1
+                if match.get('i10') == '1': # i10 - победа/поражение
+                    map_stats['wins'] += 1
+
+        if map_stats['matches'] > 0:
+            map_stats['win_rate'] = round((map_stats['wins'] / map_stats['matches']) * 100)
+
+        return map_stats
