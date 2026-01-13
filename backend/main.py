@@ -44,19 +44,31 @@ class DuelRequest(BaseModel):
 
 # --- Логика анализа (хелперы) ---
 
-async def calculate_player_stats(player_id: str, nickname: str):
-    """Асинхронно получает и рассчитывает основную статистику игрока."""
-    stats = await faceit.get_player_stats(player_id)
+async def calculate_player_stats(player_id: str, nickname: str, map_name: str = None):
+    """Асинхронно получает и рассчитывает статистику игрока, включая винрейт на карте."""
+    stats_task = faceit.get_player_stats(player_id)
+
+    map_stats_task = None
+    if map_name:
+        map_stats_task = faceit.get_player_stats_for_map(player_id, map_name)
+
+    # Параллельно выполняем запросы
+    results = await asyncio.gather(stats_task, map_stats_task)
+
+    stats = results[0]
+    map_stats = results[1]
+
     lifetime_stats = stats.get('lifetime', {})
 
-    # Извлекаем нужные данные. Используем .get() с дефолтными значениями на случай отсутствия данных.
-    return {
-        'nickname': nickname, # Добавляем никнейм
+    player_data = {
+        'nickname': nickname,
         'elo': int(stats.get('games', {}).get('cs2', {}).get('faceit_elo', 1000)),
         'win_rate': float(lifetime_stats.get('Win Rate %', 0)),
         'kd_ratio': float(lifetime_stats.get('Average K/D Ratio', 0)),
-        'hs_percent': float(lifetime_stats.get('Average Headshots %', 0))
+        'hs_percent': float(lifetime_stats.get('Average Headshots %', 0)),
+        'map_win_rate': map_stats.get('win_rate') if map_stats else None
     }
+    return player_data
 
 async def analyze_weak_link(player_id: str):
     """Анализирует последние 5 матчей игрока и возвращает средний K/D и винрейт."""
@@ -128,9 +140,11 @@ async def analyze_lobby(nickname: str):
         player_team = match_details['teams'][player_team_faction]['roster']
         enemy_team = match_details['teams'][enemy_team_faction]['roster']
 
-        # Асинхронно собираем статистику для всех игроков, передавая ID и никнейм
-        player_team_stats_tasks = [calculate_player_stats(p['player_id'], p['nickname']) for p in player_team]
-        enemy_team_stats_tasks = [calculate_player_stats(p['player_id'], p['nickname']) for p in enemy_team]
+        current_map = match_details.get('voting', {}).get('map', {}).get('pick', [None])[0]
+
+        # Асинхронно собираем статистику для всех игроков, передавая ID, никнейм и карту
+        player_team_stats_tasks = [calculate_player_stats(p['player_id'], p['nickname'], current_map) for p in player_team]
+        enemy_team_stats_tasks = [calculate_player_stats(p['player_id'], p['nickname'], current_map) for p in enemy_team]
 
         player_team_stats = await asyncio.gather(*player_team_stats_tasks)
         enemy_team_stats = await asyncio.gather(*enemy_team_stats_tasks)
@@ -158,12 +172,34 @@ async def analyze_lobby(nickname: str):
 
         weak_link_nickname = enemy_team[weak_link_index]['nickname'] if weak_link_index != -1 else "Not found"
 
+        # --- Генерация текстовых подсказок ---
+        tips = []
+        # 1. Анализ "слабого звена"
+        if weak_link_index != -1:
+            tips.append(f"Фокусируйтесь на '{weak_link_nickname}', он сейчас не в лучшей форме.")
+
+        # 2. Сравнение винрейта на карте
+        avg_player_map_wr = sum(p['map_win_rate'] for p in player_team_stats if p['map_win_rate'] is not None) / (len(player_team_stats) or 1)
+        avg_enemy_map_wr = sum(p['map_win_rate'] for p in enemy_team_stats if p['map_win_rate'] is not None) / (len(enemy_team_stats) or 1)
+
+        if current_map and avg_player_map_wr > avg_enemy_map_wr + 10:
+            tips.append(f"Ваша команда отлично играет на '{current_map}'. Это ваше преимущество!")
+        elif current_map and avg_enemy_map_wr > avg_player_map_wr + 10:
+            tips.append(f"Противник очень силен на '{current_map}'. Играйте осторожно.")
+
+        # 3. Наличие "якоря" (сильного игрока) у врага
+        strongest_enemy = max(enemy_team_stats, key=lambda p: p['kd_ratio'], default=None)
+        if strongest_enemy and strongest_enemy['kd_ratio'] > 1.5:
+            tips.append(f"Опасайтесь '{strongest_enemy['nickname']}', у него высокий K/D.")
+
         return {
             "match_id": match_id,
+            "map_name": current_map,
             "win_probability": max(0, min(100, win_probability)),
             "weak_link": weak_link_nickname,
-            "player_team": {'avg_elo': round(avg_player_team_elo), "players": player_team_stats},
-            "enemy_team": {'avg_elo': round(avg_enemy_team_elo), "players": enemy_team_stats},
+            "tips": tips,
+            "player_team": {'avg_elo': round(avg_player_team_elo), "avg_map_wr": round(avg_player_map_wr), "players": player_team_stats},
+            "enemy_team": {'avg_elo': round(avg_enemy_team_elo), "avg_map_wr": round(avg_enemy_map_wr), "players": enemy_team_stats},
         }
 
     except httpx.HTTPStatusError as e:
@@ -184,8 +220,9 @@ async def duel_players(request: DuelRequest):
         if not player1_id: raise HTTPException(status_code=404, detail=f"Player '{request.nickname1}' not found")
         if not player2_id: raise HTTPException(status_code=404, detail=f"Player '{request.nickname2}' not found")
 
-        player1_stats_task = calculate_player_stats(player1_id, request.nickname1)
-        player2_stats_task = calculate_player_stats(player2_id, request.nickname2)
+        # Для дуэли карта не важна, поэтому передаем None
+        player1_stats_task = calculate_player_stats(player1_id, request.nickname1, None)
+        player2_stats_task = calculate_player_stats(player2_id, request.nickname2, None)
         player1_stats, player2_stats = await asyncio.gather(player1_stats_task, player2_stats_task)
 
         return {

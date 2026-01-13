@@ -13,9 +13,21 @@
   border-radius: 12px;
 }
 
+.match-info {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .win-probability {
   text-align: center;
-  margin-bottom: 20px;
+}
+
+.map-info h3 {
+  margin: 0;
+  color: var(--tg-theme-hint-color);
+  font-size: 18px;
 }
 
 .win-probability h2 {
@@ -56,6 +68,24 @@
   font-weight: 500;
 }
 
+.tips-section {
+  background-color: rgba(0, 150, 255, 0.1);
+  border: 1px solid #007acc;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tips-section h4 {
+  margin: 0 0 10px;
+  color: #00aaff;
+}
+
+.tips-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
 .teams-container {
   display: flex;
   gap: 15px;
@@ -88,4 +118,27 @@
   display: flex;
   justify-content: space-around;
   font-size: 14px;
+}
+/* Дополнительные стили для кнопок */
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: -5px; /* Небольшой отступ вверх */
+  margin-bottom: 15px;
+}
+
+.main-button {
+  flex-grow: 2; /* Основная кнопка будет шире */
+}
+
+.secondary-button {
+  flex-grow: 1;
+  background-color: var(--tg-theme-secondary-bg-color);
+  border: 1px solid #555;
+  color: var(--tg-theme-text-color);
+}
+
+.secondary-button:hover {
+  background-color: #4a4a4a;
 }

@@ -7,22 +7,26 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 // (Хорошая практика в TypeScript - определять формы данных)
 
 export interface PlayerStats {
-  nickname: string; // Добавляем никнейм
+  nickname: string;
   elo: number;
   win_rate: number;
   kd_ratio: number;
   hs_percent: number;
+  map_win_rate: number | null;
 }
 
 export interface TeamAnalysis {
   avg_elo: number;
+  avg_map_wr: number;
   players: PlayerStats[];
 }
 
 export interface LobbyAnalysisResult {
   match_id: string;
+  map_name: string | null;
   win_probability: number;
   weak_link: string;
+  tips: string[];
   player_team: TeamAnalysis;
   enemy_team: TeamAnalysis;
 }
