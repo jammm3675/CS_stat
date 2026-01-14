@@ -7,10 +7,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 // (Хорошая практика в TypeScript - определять формы данных)
 
 export interface PlayerStats {
+  player_id: string;
   nickname: string;
   elo: number;
   win_rate: number;
   kd_ratio: number;
+  recent_kd_ratio: number;
   hs_percent: number;
   map_win_rate: number | null;
 }
@@ -95,4 +97,11 @@ export const getUserNickname = (userId: number): Promise<{ faceit_nickname: stri
  */
 export const getHistory = (userId: number): Promise<any[]> => {
   return fetchApi(`/history/${userId}`);
+};
+
+/**
+ * Сравнивает игрока с про-игроком.
+ */
+export const compareWithPro = (playerId: string): Promise<{ verdict: string | null }> => {
+  return fetchApi(`/compare_with_pro/${playerId}`);
 };

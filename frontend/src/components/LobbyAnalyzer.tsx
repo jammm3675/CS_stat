@@ -1,17 +1,22 @@
 // frontend/src/components/LobbyAnalyzer.tsx
 import React, { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
-import { analyzeLobby, saveUserNickname, getUserNickname, LobbyAnalysisResult } from '../api';
+import { analyzeLobby, saveUserNickname, getUserNickname, LobbyAnalysisResult, compareWithPro } from '../api';
 import SkeletonLoader from './SkeletonLoader'; // Импортируем наш лоадер
 import './LobbyAnalyzer.css'; // Добавим стили для этого компонента
 
 // Вспомогательный компонент для отображения карточки игрока
 const PlayerCard = ({ stats, mapName }: { stats: any, mapName: string | null }) => (
   <div className="player-card">
-    <p className="player-nickname">{stats.nickname}</p>
-    <div className="player-stats">
-      <span>Elo: {stats.elo}</span>
-      <span>K/D: {stats.kd_ratio}</span>
+    <div className="player-main-stats">
+      <p className="player-nickname">{stats.nickname}</p>
+      <span className="player-elo">{stats.elo} Elo</span>
+    </div>
+    <div className="player-secondary-stats">
+      <span title="Lifetime K/D Ratio">K/D: {stats.kd_ratio}</span>
+      <span title="K/D Ratio in last 20 matches" className={stats.recent_kd_ratio > stats.kd_ratio ? 'stat-up' : 'stat-down'}>
+        Recent K/D: {stats.recent_kd_ratio}
+      </span>
       {mapName && stats.map_win_rate !== null ? (
         <span title={`Win rate on ${mapName}`}>Map WR: {stats.map_win_rate}%</span>
       ) : (
@@ -27,6 +32,7 @@ const LobbyAnalyzer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LobbyAnalysisResult | null>(null);
+  const [proVerdict, setProVerdict] = useState<string | null>(null);
 
   // Пытаемся получить сохраненный никнейм при загрузке компонента
   useEffect(() => {
@@ -70,10 +76,20 @@ const LobbyAnalyzer = () => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setProVerdict(null); // Сбрасываем вердикт при новом анализе
 
     try {
       const data = await analyzeLobby(nicknameToAnalyze);
       setResult(data);
+
+      // После успешного анализа, запрашиваем сравнение с про
+      const currentUser = data.player_team.players.find(p => p.nickname.toLowerCase() === nicknameToAnalyze.toLowerCase());
+      if (currentUser) {
+        const proData = await compareWithPro(currentUser.player_id);
+        if (proData.verdict) {
+          setProVerdict(proData.verdict);
+        }
+      }
 
       // Сохраняем никнейм для будущего использования, если он был введен вручную
       if (!useSavedNickname && WebApp.initDataUnsafe?.user?.id) {
@@ -149,6 +165,13 @@ const LobbyAnalyzer = () => {
               {result.enemy_team.players.map((p, i) => <PlayerCard key={i} stats={p} mapName={result.map_name} />)}
             </div>
           </div>
+
+          {proVerdict && (
+            <div className="pro-verdict-section">
+              <h4>🏆 Pro Comparison</h4>
+              <p>{proVerdict}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
