@@ -1,6 +1,6 @@
 // frontend/src/components/LobbyAnalyzer.tsx
 import React, { useState } from 'react';
-import { analyzeLobby, LobbyAnalysisResult, compareWithPro } from '../api';
+import api, { LobbyAnalysisResult } from '../api';
 import SkeletonLoader from './SkeletonLoader';
 import './LobbyAnalyzer.css';
 
@@ -49,13 +49,13 @@ const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
     setProVerdict(null); // Сбрасываем вердикт при новом анализе
 
     try {
-      const data = await analyzeLobby(nicknameToAnalyze);
+      const data = await api.analyzeLobby(nicknameToAnalyze);
       setResult(data);
 
       // После успешного анализа, запрашиваем сравнение с про из ветки main
       const currentUser = data.player_team.players.find(p => p.nickname.toLowerCase() === nicknameToAnalyze.toLowerCase());
       if (currentUser && currentUser.player_id) {
-        const proData = await compareWithPro(currentUser.player_id);
+        const proData = await api.compareWithPro(currentUser.player_id);
         if (proData.verdict) {
           setProVerdict(proData.verdict);
         }

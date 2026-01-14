@@ -1,6 +1,6 @@
 // frontend/src/components/DuelMode.tsx
 import React, { useState } from 'react';
-import { duelPlayers, DuelResult, PlayerStats } from '../api';
+import api, { DuelResult, PlayerStats } from '../api';
 import './DuelMode.css'; // Добавим стили
 
 // Вспомогательный компонент для отображения статистики в дуэли
@@ -40,7 +40,7 @@ const DuelMode = ({ telegramId, faceitNickname }: DuelModeProps) => {
     setResult(null);
 
     try {
-      const data = await duelPlayers(nickname1, nickname2);
+      const data = await api.duelPlayers(nickname1, nickname2);
       setResult(data);
     } catch (err: any) {
       setError(err.message || 'An error occurred.');

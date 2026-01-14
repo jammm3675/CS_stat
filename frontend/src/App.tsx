@@ -5,7 +5,7 @@ import LobbyAnalyzer from './components/LobbyAnalyzer';
 import DuelMode from './components/DuelMode';
 import History from './components/History';
 import ProfileAnalytics from './components/ProfileAnalytics';
-import { getUserNickname, saveUserNickname } from './api';
+import api from './api';
 import './App.css';
 
 // Определяем тип для текущего экрана
@@ -26,7 +26,7 @@ function App() {
         const tId = WebApp.initDataUnsafe.user.id;
         setTelegramId(tId);
         try {
-          const data = await getUserNickname(tId);
+          const data = await api.getUserNickname(tId);
           setFaceitNickname(data.faceit_nickname);
         } catch (error) {
           // Никнейм не найден, это нормальное поведение
@@ -47,7 +47,7 @@ function App() {
     }
     setError(null);
     try {
-      await saveUserNickname(telegramId, nicknameInput);
+      await api.saveUserNickname(telegramId, nicknameInput);
       setFaceitNickname(nicknameInput);
     } catch (err: any) {
       setError(err.message || 'Failed to save nickname.');

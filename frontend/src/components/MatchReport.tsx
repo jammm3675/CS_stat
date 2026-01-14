@@ -1,6 +1,6 @@
 // frontend/src/components/MatchReport.tsx
 import React, { useState, useEffect } from 'react';
-import { getMatchReport, MatchReportResult } from '../api';
+import api, { MatchReportResult } from '../api';
 import './MatchReport.css';
 
 interface MatchReportProps {
@@ -15,7 +15,7 @@ const MatchReport = ({ matchId }: MatchReportProps) => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const data = await getMatchReport(matchId);
+        const data = await api.getMatchReport(matchId);
         setReport(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load match report.');

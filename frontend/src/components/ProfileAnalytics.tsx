@@ -1,6 +1,6 @@
 // frontend/src/components/ProfileAnalytics.tsx
 import React, { useState, useEffect } from 'react';
-import { getProfileAnalytics, ProfileAnalyticsResult } from '../api';
+import api, { ProfileAnalyticsResult } from '../api';
 import SkeletonLoader from './SkeletonLoader';
 import './ProfileAnalytics.css';
 
@@ -25,7 +25,7 @@ const ProfileAnalytics = ({ faceitNickname }: ProfileAnalyticsProps) => {
     setResult(null);
 
     try {
-      const data = await getProfileAnalytics(nicknameToAnalyze);
+      const data = await api.getProfileAnalytics(nicknameToAnalyze);
       setResult(data);
     } catch (err: any) {
       setError(err.message || 'An error occurred.');

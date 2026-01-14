@@ -102,47 +102,6 @@ async def analyze_weak_link(player_id: str):
 
 # --- Эндпоинты API ---
 
-@app.get("/compare_with_pro/{player_id}")
-async def compare_with_pro(player_id: str):
-    """Сравнивает статистику игрока со случайным про-игроком из базы."""
-    try:
-        # 1. Получаем статистику нашего игрока
-        player_stats_task = faceit.get_player_stats(player_id)
-
-        # 2. Получаем случайного про-игрока из нашей БД
-        pro_player_data, count = supabase.rpc('get_random_pro_player', {}).execute()
-        if not pro_player_data[1]:
-            raise HTTPException(status_code=404, detail="No pro players found in the database.")
-
-        pro_player = pro_player_data[1][0]
-        pro_player_name = pro_player['name']
-        pro_player_id = pro_player['faceit_id']
-
-        # 3. Получаем статистику про-игрока
-        pro_stats_task = faceit.get_player_stats(pro_player_id)
-
-        # Выполняем запросы параллельно
-        player_stats, pro_stats = await asyncio.gather(player_stats_task, pro_stats_task)
-
-        # 4. Сравниваем и генерируем вердикт
-        player_kd = float(player_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
-        pro_kd = float(pro_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
-
-        verdict = ""
-        if player_kd >= pro_kd * 0.95: # Если K/D составляет 95% от K/D про-игрока
-            verdict = f"В этом матче твой K/D на уровне {pro_player_name}!"
-        elif player_kd > pro_kd * 0.8:
-            verdict = f"Отличный результат! Ты почти догнал {pro_player_name} по K/D."
-        else:
-            verdict = f"Продолжай тренироваться, и однажды твой K/D будет как у {pro_player_name}."
-
-        return {"verdict": verdict, "player_kd": player_kd, "pro_player": pro_player_name, "pro_kd": pro_kd}
-
-    except Exception as e:
-        # Возвращаем пустой объект в случае ошибки, чтобы не ломать фронтенд
-        return {"verdict": None}
-
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Predictor & Analyzer API"}

@@ -1,6 +1,6 @@
 // frontend/src/components/History.tsx
 import React, { useState, useEffect } from 'react';
-import { getHistory } from '../api';
+import api from '../api';
 import MatchReport from './MatchReport';
 import './History.css';
 
@@ -23,7 +23,7 @@ const History = ({ telegramId }: HistoryProps) => {
       }
 
       try {
-        const data = await getHistory(telegramId);
+        const data = await api.getHistory(telegramId);
         setHistory(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load history.');
