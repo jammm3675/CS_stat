@@ -1,11 +1,9 @@
 // frontend/src/components/LobbyAnalyzer.tsx
-import React, { useState, useEffect } from 'react';
-import WebApp from '@twa-dev/sdk';
-import { analyzeLobby, saveUserNickname, getUserNickname, LobbyAnalysisResult } from '../api';
-import SkeletonLoader from './SkeletonLoader'; // Импортируем наш лоадер
-import './LobbyAnalyzer.css'; // Добавим стили для этого компонента
+import React, { useState } from 'react';
+import { analyzeLobby, LobbyAnalysisResult } from '../api';
+import SkeletonLoader from './SkeletonLoader';
+import './LobbyAnalyzer.css';
 
-// Вспомогательный компонент для отображения карточки игрока
 const PlayerCard = ({ stats, mapName }: { stats: any, mapName: string | null }) => (
   <div className="player-card">
     <p className="player-nickname">{stats.nickname}</p>
@@ -21,49 +19,20 @@ const PlayerCard = ({ stats, mapName }: { stats: any, mapName: string | null }) 
   </div>
 );
 
+interface LobbyAnalyzerProps {
+  telegramId: number | null;
+  faceitNickname: string | null;
+}
 
-const LobbyAnalyzer = () => {
-  const [nickname, setNickname] = useState('');
+const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
+  const [nickname, setNickname] = useState(faceitNickname || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LobbyAnalysisResult | null>(null);
 
-  // Пытаемся получить сохраненный никнейм при загрузке компонента
-  useEffect(() => {
-    const fetchNickname = async () => {
-      if (WebApp.initDataUnsafe?.user?.id) {
-        try {
-          const data = await getUserNickname(WebApp.initDataUnsafe.user.id);
-          setNickname(data.faceit_nickname);
-        } catch (err) {
-          console.log("No saved nickname found.");
-        }
-      }
-    };
-    fetchNickname();
-  }, []);
-
-  const handleAnalyze = async (useSavedNickname = false) => {
-    let nicknameToAnalyze = nickname;
-
-    if (useSavedNickname) {
-      if (WebApp.initDataUnsafe?.user?.id) {
-        try {
-          const data = await getUserNickname(WebApp.initDataUnsafe.user.id);
-          nicknameToAnalyze = data.faceit_nickname;
-          setNickname(nicknameToAnalyze); // Обновляем поле ввода
-        } catch (err) {
-          setError("You don't have a saved nickname yet. Please enter it first.");
-          return;
-        }
-      } else {
-        setError("Telegram user ID not found.");
-        return;
-      }
-    }
-
+  const handleAnalyze = async (nicknameToAnalyze: string | null) => {
     if (!nicknameToAnalyze) {
-      setError('Please enter a nickname.');
+      setError('Nickname not provided. Please enter a nickname.');
       return;
     }
 
@@ -74,12 +43,6 @@ const LobbyAnalyzer = () => {
     try {
       const data = await analyzeLobby(nicknameToAnalyze);
       setResult(data);
-
-      // Сохраняем никнейм для будущего использования, если он был введен вручную
-      if (!useSavedNickname && WebApp.initDataUnsafe?.user?.id) {
-        await saveUserNickname(WebApp.initDataUnsafe.user.id, nicknameToAnalyze);
-      }
-
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
     } finally {
@@ -93,14 +56,14 @@ const LobbyAnalyzer = () => {
         type="text"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        placeholder="Enter your FACEIT nickname"
+        placeholder="Enter a FACEIT nickname"
         disabled={loading}
       />
       <div className="button-group">
-        <button className="main-button" onClick={() => handleAnalyze()} disabled={loading}>
+        <button className="main-button" onClick={() => handleAnalyze(nickname)} disabled={loading}>
           {loading ? 'Analyzing...' : 'Analyze Nickname'}
         </button>
-        <button className="secondary-button" onClick={() => handleAnalyze(true)} disabled={loading}>
+        <button className="secondary-button" onClick={() => handleAnalyze(faceitNickname)} disabled={loading}>
           Find My Match
         </button>
       </div>

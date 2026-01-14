@@ -106,3 +106,67 @@ async def get_player_stats_for_map(player_id: str, map_name: str) -> dict:
             map_stats['win_rate'] = round((map_stats['wins'] / map_stats['matches']) * 100)
 
         return map_stats
+
+async def get_player_profile_analytics(player_id: str) -> dict:
+    """
+    Получает расширенную статистику и аналитику для профиля игрока.
+    """
+    stats_data = await get_player_stats(player_id)
+
+    # Базовая информация
+    lifetime_stats = stats_data.get('lifetime', {})
+    games_stats = stats_data.get('games', {}).get('cs2', {})
+
+    analytics = {
+        'elo': games_stats.get('faceit_elo', 1000),
+        'kd_ratio': float(lifetime_stats.get('Average K/D Ratio', 0)),
+        'win_rate': float(lifetime_stats.get('Win Rate %', 0)),
+        'hs_percent': float(lifetime_stats.get('Average Headshots %', 0)),
+        'best_maps': [],
+        'favorite_weapon': None
+    }
+
+    # Анализ карт и оружия из сегментов
+    segments = stats_data.get('segments', [])
+
+    # Карты
+    map_data = []
+    for segment in segments:
+        if segment.get('type') == 'map' and segment.get('mode') == '5v5':
+            map_stats = segment.get('stats', {})
+            matches = int(map_stats.get('Matches', 0))
+            if matches > 10: # Показывать только карты с достаточным количеством матчей
+                map_data.append({
+                    'name': segment.get('label', 'Unknown Map').replace('de_', '').capitalize(),
+                    'win_rate': int(map_stats.get('Win Rate %', 0)),
+                    'matches': matches
+                })
+
+    # Сортируем карты по винрейту и берем топ-3
+    analytics['best_maps'] = sorted(map_data, key=lambda x: x['win_rate'], reverse=True)[:3]
+
+    # Оружие
+    weapon_data = []
+    for segment in segments:
+        if segment.get('type') == 'weapon':
+            weapon_stats = segment.get('stats', {})
+            kills = int(weapon_stats.get('Kills', 0))
+            weapon_data.append({
+                'name': segment.get('label', 'Unknown Weapon'),
+                'kills': kills
+            })
+
+    # Находим оружие с наибольшим количеством убийств
+    if weapon_data:
+        favorite_weapon = max(weapon_data, key=lambda x: x['kills'])
+        analytics['favorite_weapon'] = favorite_weapon['name']
+
+    return analytics
+
+@alru_cache(maxsize=128, ttl=1800) # Кэш на 30 минут, т.к. статистика матча не меняется
+async def get_match_stats(match_id: str) -> dict:
+    """Получает статистику по матчу (количество раундов, команды, очки игроков)."""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{BASE_URL}/matches/{match_id}/stats", headers=HEADERS)
+        response.raise_for_status()
+        return response.json()

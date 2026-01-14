@@ -67,3 +67,64 @@
   font-weight: bold;
   color: var(--tg-theme-link-color); /* Highlight the winner */
 }
+
+/* VS Builder Styles */
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.mode-toggle button {
+  background: none;
+  border: 1px solid #555;
+  color: #aaa;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.mode-toggle button.active {
+  background-color: #ff5500;
+  color: white;
+  border-color: #ff5500;
+}
+
+.mode-toggle button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+.mode-toggle button:last-child {
+  border-radius: 0 5px 5px 0;
+}
+
+.manual-sliders {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-around;
+}
+
+.player-sliders {
+  flex: 1;
+}
+
+.player-sliders h4 {
+  text-align: center;
+}
+
+.player-sliders label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #aaa;
+}
+
+.player-sliders input[type="range"] {
+  width: 100%;
+}
+
+.manual-result {
+  text-align: center;
+  margin-top: 1.5rem;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 8px;
+}
