@@ -23,6 +23,14 @@ HEADERS = {
 # --- Функции-хелперы для работы с FACEIT API ---
 
 @alru_cache(maxsize=256, ttl=300) # Кэш на 5 минут
+async def get_player_details(player_id: str) -> dict:
+    """Получает основную информацию об игроке, включая ELO."""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{BASE_URL}/players/{player_id}", headers=HEADERS)
+        response.raise_for_status()
+        return response.json()
+
+@alru_cache(maxsize=256, ttl=300) # Кэш на 5 минут
 async def get_player_id(nickname: str) -> str:
     """Получает ID игрока по его никнейму."""
     async with httpx.AsyncClient() as client:
@@ -77,7 +85,7 @@ async def get_player_stats(player_id: str) -> dict:
         return response.json()
 
 @alru_cache(maxsize=128, ttl=300) # Кэш на 5 минут
-async def get_player_match_history(player_id: str, limit: int = 5) -> list:
+async def get_player_match_history(player_id: str, limit: int = 20) -> list:
     """Получает историю последних матчей игрока."""
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{BASE_URL}/players/{player_id}/history?game=cs2&offset=0&limit={limit}", headers=HEADERS)
