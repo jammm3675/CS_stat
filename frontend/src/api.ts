@@ -156,3 +156,10 @@ export const getMatchReport = (matchId: string): Promise<MatchReportResult> => {
 export const compareWithPro = (playerId: string): Promise<ProComparisonResult> => {
   return fetchApi(`/compare-with-pro/${playerId}`);
 };
+
+/**
+ * Сравнивает игрока с про-игроком.
+ */
+export const compareWithPro = (playerId: string): Promise<{ verdict: string | null }> => {
+  return fetchApi(`/compare_with_pro/${playerId}`);
+};
