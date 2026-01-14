@@ -1,0 +1,75 @@
+/* frontend/src/components/ProfileAnalytics.css */
+.profile-analytics {
+  padding: 1rem;
+}
+
+.search-bar {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid #333;
+  background-color: #1c1c1c;
+  color: #fff;
+  border-radius: 5px 0 0 5px;
+}
+
+.search-bar button {
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: #ff5500;
+  color: white;
+  cursor: pointer;
+  border-radius: 0 5px 5px 0;
+  font-weight: bold;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin-top: 0;
+  color: #aaa;
+  font-size: 1rem;
+}
+
+.stat-card p {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 0;
+  color: #fff;
+}
+
+.stat-card ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.stat-card ul li {
+  font-size: 1rem;
+  color: #ddd;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card.large-card, .stat-card.full-width-card {
+  grid-column: span 2;
+}
+
+.stat-card.full-width-card {
+  grid-column: 1 / -1;
+}

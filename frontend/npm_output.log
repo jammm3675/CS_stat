@@ -1,0 +1,319 @@
+
+> frontend@0.1.0 start
+> react-scripts start
+
+(node:3540) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:3540) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view frontend in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.0.2:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+ERROR in src/App.tsx:26:17
+TS2739: Type '{}' is missing the following properties from type 'LobbyAnalyzerProps': telegramId, faceitNickname
+    24 |     switch (screen) {
+    25 |       case 'analyze':
+  > 26 |         return <LobbyAnalyzer />;
+       |                 ^^^^^^^^^^^^^
+    27 |       case 'duel':
+    28 |         return <DuelMode />;
+    29 |       case 'history':
+
+ERROR in src/App.tsx:32:17
+TS2739: Type '{}' is missing the following properties from type 'LobbyAnalyzerProps': telegramId, faceitNickname
+    30 |         return <History />;
+    31 |       default:
+  > 32 |         return <LobbyAnalyzer />;
+       |                 ^^^^^^^^^^^^^
+    33 |     }
+    34 |   };
+    35 |
+
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+ERROR in ./src/App.tsx 11:0-61
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+
+webpack compiled with 1 error
+ERROR in src/App.tsx:7:30
+TS2307: Cannot find module './components/ProfileAnalytics' or its corresponding type declarations.
+     5 | import DuelMode from './components/DuelMode';
+     6 | import History from './components/History';
+  >  7 | import ProfileAnalytics from './components/ProfileAnalytics';
+       |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { getUserNickname, saveUserNickname } from './api';
+     9 | import './App.css';
+    10 |
+
+ERROR in src/App.tsx:86:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    84 |           return <LobbyAnalyzer {...props} />;
+    85 |         case 'duel':
+  > 86 |           return <DuelMode {...props} />;
+       |                   ^^^^^^^^
+    87 |         case 'history':
+    88 |           return <History {...props} />;
+    89 |         case 'profile':
+
+ERROR in src/App.tsx:88:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    86 |           return <DuelMode {...props} />;
+    87 |         case 'history':
+  > 88 |           return <History {...props} />;
+       |                   ^^^^^^^
+    89 |         case 'profile':
+    90 |           return <ProfileAnalytics {...props} />;
+    91 |         default:
+
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+ERROR in ./src/App.tsx 11:0-61
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+
+ERROR in ./node_modules/react-refresh/runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react-refresh/runtime.js'
+
+webpack compiled with 2 errors
+ERROR in src/App.tsx:7:30
+TS2307: Cannot find module './components/ProfileAnalytics' or its corresponding type declarations.
+     5 | import DuelMode from './components/DuelMode';
+     6 | import History from './components/History';
+  >  7 | import ProfileAnalytics from './components/ProfileAnalytics';
+       |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { getUserNickname, saveUserNickname } from './api';
+     9 | import './App.css';
+    10 |
+
+ERROR in src/App.tsx:86:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    84 |           return <LobbyAnalyzer {...props} />;
+    85 |         case 'duel':
+  > 86 |           return <DuelMode {...props} />;
+       |                   ^^^^^^^^
+    87 |         case 'history':
+    88 |           return <History {...props} />;
+    89 |         case 'profile':
+
+ERROR in src/App.tsx:88:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    86 |           return <DuelMode {...props} />;
+    87 |         case 'history':
+  > 88 |           return <History {...props} />;
+       |                   ^^^^^^^
+    89 |         case 'profile':
+    90 |           return <ProfileAnalytics {...props} />;
+    91 |         default:
+
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+LOG from webpack.FileSystemInfo
+<w> Managed item /app/frontend/node_modules/@twa-dev/sdk isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
++ 8 hidden lines
+
+ERROR in ./src/App.tsx 11:0-61
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+
+ERROR in ./node_modules/@twa-dev/sdk/dist/index.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/@twa-dev/sdk/dist/index.js'
+
+ERROR in ./node_modules/react-refresh/runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react-refresh/runtime.js'
+
+webpack compiled with 3 errors
+ERROR in src/App.tsx:7:30
+TS2307: Cannot find module './components/ProfileAnalytics' or its corresponding type declarations.
+     5 | import DuelMode from './components/DuelMode';
+     6 | import History from './components/History';
+  >  7 | import ProfileAnalytics from './components/ProfileAnalytics';
+       |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { getUserNickname, saveUserNickname } from './api';
+     9 | import './App.css';
+    10 |
+
+ERROR in src/App.tsx:86:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    84 |           return <LobbyAnalyzer {...props} />;
+    85 |         case 'duel':
+  > 86 |           return <DuelMode {...props} />;
+       |                   ^^^^^^^^
+    87 |         case 'history':
+    88 |           return <History {...props} />;
+    89 |         case 'profile':
+
+ERROR in src/App.tsx:88:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    86 |           return <DuelMode {...props} />;
+    87 |         case 'history':
+  > 88 |           return <History {...props} />;
+       |                   ^^^^^^^
+    89 |         case 'profile':
+    90 |           return <ProfileAnalytics {...props} />;
+    91 |         default:
+
+Failed to compile.
+
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+LOG from webpack.FileSystemInfo
+<w> Managed item /app/frontend/node_modules/react isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
++ 8 hidden lines
+
+ERROR in ./src/App.tsx 11:0-61
+Module not found: Error: Can't resolve './components/ProfileAnalytics' in '/app/frontend/src'
+
+ERROR in ./node_modules/@twa-dev/sdk/dist/index.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/@twa-dev/sdk/dist/index.js'
+
+ERROR in ./node_modules/react-refresh/runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react-refresh/runtime.js'
+
+ERROR in ./node_modules/react/index.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/index.js'
+
+ERROR in ./node_modules/react/jsx-dev-runtime.js
+Module build failed (from ./node_modules/source-map-loader/dist/cjs.js):
+Error: ENOENT: no such file or directory, open '/app/frontend/node_modules/react/jsx-dev-runtime.js'
+
+webpack compiled with 5 errors
+ERROR in src/App.tsx:7:30
+TS2307: Cannot find module './components/ProfileAnalytics' or its corresponding type declarations.
+     5 | import DuelMode from './components/DuelMode';
+     6 | import History from './components/History';
+  >  7 | import ProfileAnalytics from './components/ProfileAnalytics';
+       |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { getUserNickname, saveUserNickname } from './api';
+     9 | import './App.css';
+    10 |
+
+ERROR in src/App.tsx:86:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    84 |           return <LobbyAnalyzer {...props} />;
+    85 |         case 'duel':
+  > 86 |           return <DuelMode {...props} />;
+       |                   ^^^^^^^^
+    87 |         case 'history':
+    88 |           return <History {...props} />;
+    89 |         case 'profile':
+
+ERROR in src/App.tsx:88:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    86 |           return <DuelMode {...props} />;
+    87 |         case 'history':
+  > 88 |           return <History {...props} />;
+       |                   ^^^^^^^
+    89 |         case 'profile':
+    90 |           return <ProfileAnalytics {...props} />;
+    91 |         default:
+
+Failed to compile.
+
+Module not found: Error: Can't resolve '/app/frontend/node_modules/@pmmmwh/react-refresh-webpack-plugin/client/ReactRefreshEntry.js' in '/app/frontend'
+ERROR in Module not found: Error: Can't resolve '/app/frontend/node_modules/@pmmmwh/react-refresh-webpack-plugin/client/ReactRefreshEntry.js' in '/app/frontend'
+
+ERROR in main
+Module not found: Error: Can't resolve '/app/frontend/node_modules/babel-loader/lib/index.js' in '/app/frontend'
+
+ERROR in Module not found: Error: Can't resolve '/app/frontend/node_modules/webpack-dev-server/client/index.js?protocol=ws%3A&hostname=0.0.0.0&port=3000&pathname=%2Fws&logging=none&overlay=%7B%22errors%22%3Atrue%2C%22warnings%22%3Afalse%7D&reconnect=10&hot=true&live-reload=true' in '/app/frontend'
+
+ERROR in Module not found: Error: Can't resolve '/app/frontend/node_modules/webpack/hot/dev-server.js' in '/app/frontend'
+
+ERROR in Error: Child compilation failed:
+Module not found: Error: Can't resolve '/app/frontend/node_modules/html-webpack-plugin/lib/loader.js' in '/app/frontend'
+ModuleNotFoundError: Module not found: Error: Can't resolve '/app/frontend/node_modules/html-webpack-plugin/lib/loader.js' in '/app/frontend'
+    at /app/frontend/node_modules/webpack/lib/Compilation.js:2065:28
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:1028:13
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:10:1)
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:429:22
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:9:1)
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:614:22
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:180:10
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:846:23
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:1338:5
+    at /app/frontend/node_modules/neo-async/async.js:2830:7
+    at done (/app/frontend/node_modules/neo-async/async.js:2925:13)
+    at /app/frontend/node_modules/webpack/lib/NormalModuleFactory.js:1301:23
+    at finishWithoutResolve (/app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:568:11)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:657:14
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:16:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:27:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/DescriptionFilePlugin.js:89:43
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:15:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:15:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:16:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:27:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/DescriptionFilePlugin.js:89:43
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:16:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/Resolver.js:718:5
+    at eval (eval at create (/app/frontend/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:15:1)
+    at /app/frontend/node_modules/enhanced-resolve/lib/DirectoryExistsPlugin.js:43:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+
+1 ERROR in child compilations (Use 'stats.children: true' resp. '--stats-children' for more details)
+webpack compiled with 6 errors
+ERROR in src/App.tsx:7:30
+TS2307: Cannot find module './components/ProfileAnalytics' or its corresponding type declarations.
+     5 | import DuelMode from './components/DuelMode';
+     6 | import History from './components/History';
+  >  7 | import ProfileAnalytics from './components/ProfileAnalytics';
+       |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     8 | import { getUserNickname, saveUserNickname } from './api';
+     9 | import './App.css';
+    10 |
+
+ERROR in src/App.tsx:86:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    84 |           return <LobbyAnalyzer {...props} />;
+    85 |         case 'duel':
+  > 86 |           return <DuelMode {...props} />;
+       |                   ^^^^^^^^
+    87 |         case 'history':
+    88 |           return <History {...props} />;
+    89 |         case 'profile':
+
+ERROR in src/App.tsx:88:19
+TS2559: Type '{ telegramId: number | null; faceitNickname: string; }' has no properties in common with type 'IntrinsicAttributes'.
+    86 |           return <DuelMode {...props} />;
+    87 |         case 'history':
+  > 88 |           return <History {...props} />;
+       |                   ^^^^^^^
+    89 |         case 'profile':
+    90 |           return <ProfileAnalytics {...props} />;
+    91 |         default:
+
+/app/frontend/node_modules/react-scripts/scripts/start.js:19
+  throw err;
+  ^
+
+[Error: ENOENT: no such file or directory, stat '/app/frontend/node_modules/.cache/default-development/0.pack'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: '/app/frontend/node_modules/.cache/default-development/0.pack'
+}
+
+Node.js v22.21.1

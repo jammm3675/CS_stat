@@ -7,12 +7,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 // (Хорошая практика в TypeScript - определять формы данных)
 
 export interface PlayerStats {
-  player_id: string;
+  player_id: string; // Добавлено для запроса сравнения с про
   nickname: string;
   elo: number;
   win_rate: number;
   kd_ratio: number;
-  recent_kd_ratio: number;
+  recent_kd_ratio: number; // Новое поле
   hs_percent: number;
   map_win_rate: number | null;
 }
@@ -22,6 +22,11 @@ export interface TeamAnalysis {
   avg_map_wr: number;
   players: PlayerStats[];
 }
+
+export interface ProComparisonResult {
+  verdict: string;
+}
+
 
 export interface LobbyAnalysisResult {
   match_id: string;
@@ -36,6 +41,38 @@ export interface LobbyAnalysisResult {
 export interface DuelResult {
   [nickname: string]: PlayerStats;
 }
+
+export interface ProfileAnalyticsResult {
+  elo: number;
+  kd_ratio: number;
+  win_rate: number;
+  hs_percent: number;
+  best_maps: { name: string; win_rate: number; matches: number }[];
+  favorite_weapon: string;
+  tips: string[];
+}
+
+export interface MatchPlayerStats {
+  player_id: string;
+  nickname: string;
+  player_stats: {
+    Kills: string;
+    Assists: string;
+    Deaths: string;
+    'K/D Ratio': string;
+    'Headshots %': string;
+  };
+}
+
+export interface MatchReportResult {
+  map: string;
+  score: string;
+  teams: {
+    name: string;
+    players: MatchPlayerStats[];
+  }[];
+}
+
 
 // --- Функции для вызова эндпоинтов ---
 
@@ -78,25 +115,46 @@ export const duelPlayers = (nickname1: string, nickname2: string): Promise<DuelR
 /**
  * Сохраняет или обновляет никнейм пользователя.
  */
-export const saveUserNickname = (userId: number, nickname: string): Promise<any> => {
+export const saveUserNickname = (telegramId: number, nickname: string): Promise<any> => {
   return fetchApi('/user', {
     method: 'POST',
-    body: JSON.stringify({ user_id: userId, faceit_nickname: nickname }),
+    body: JSON.stringify({ telegram_id: telegramId, faceit_nickname: nickname }),
   });
 };
 
 /**
  * Получает сохраненный никнейм пользователя.
  */
-export const getUserNickname = (userId: number): Promise<{ faceit_nickname: string }> => {
-  return fetchApi(`/user/${userId}`);
+export const getUserNickname = (telegramId: number): Promise<{ faceit_nickname: string }> => {
+  return fetchApi(`/user/${telegramId}`);
 };
 
 /**
  * Получает историю матчей пользователя.
  */
-export const getHistory = (userId: number): Promise<any[]> => {
-  return fetchApi(`/history/${userId}`);
+export const getHistory = (telegramId: number): Promise<any[]> => {
+  return fetchApi(`/history/${telegramId}`);
+};
+
+/**
+ * Получает расширенную аналитику по профилю игрока.
+ */
+export const getProfileAnalytics = (nickname: string): Promise<ProfileAnalyticsResult> => {
+  return fetchApi(`/profile/${nickname}`);
+};
+
+/**
+ * Получает детальную статистику по завершенному матчу.
+ */
+export const getMatchReport = (matchId: string): Promise<MatchReportResult> => {
+  return fetchApi(`/match-report/${matchId}`);
+};
+
+/**
+ * Сравнивает статистику игрока с профессиональным игроком.
+ */
+export const compareWithPro = (playerId: string): Promise<ProComparisonResult> => {
+  return fetchApi(`/compare-with-pro/${playerId}`);
 };
 
 /**

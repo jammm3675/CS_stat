@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
 from dotenv import load_dotenv
+import httpx
 
 # Импортируем наши функции для работы с FACEIT API
 import faceit_api as faceit
@@ -35,7 +36,7 @@ app.add_middleware(
 
 # --- Модели данных (Pydantic) ---
 class UserCreate(BaseModel):
-    user_id: int
+    telegram_id: int
     faceit_nickname: str
 
 class DuelRequest(BaseModel):
@@ -150,17 +151,17 @@ def read_root():
 def create_or_update_user(user_data: UserCreate):
     try:
         supabase.table('users').upsert({
-            'id': user_data.user_id,
+            'telegram_id': user_data.telegram_id,
             'faceit_nickname': user_data.faceit_nickname
-        }, on_conflict='id').execute()
+        }, on_conflict='telegram_id').execute()
         return {"status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/user/{user_id}")
-def get_user_nickname(user_id: int):
+@app.get("/user/{telegram_id}")
+def get_user_nickname(telegram_id: int):
     try:
-        data, count = supabase.table('users').select('faceit_nickname').eq('id', user_id).execute()
+        data, count = supabase.table('users').select('faceit_nickname').eq('telegram_id', telegram_id).execute()
         if not data[1]:
             raise HTTPException(status_code=404, detail="User not found")
         return {"faceit_nickname": data[1][0]['faceit_nickname']}
@@ -283,14 +284,133 @@ async def duel_players(request: DuelRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/history/{user_id}")
-def get_match_history(user_id: int):
+@app.get("/history/{telegram_id}")
+def get_match_history(telegram_id: int):
     """Получает историю анализов для пользователя."""
     try:
-        data, count = supabase.table('match_history').select('*').eq('user_id', user_id).order('created_at', desc=True).limit(10).execute()
+        data, count = supabase.table('match_history').select('*').eq('telegram_id', telegram_id).order('created_at', desc=True).limit(10).execute()
         return data[1]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+def generate_profile_tips(analytics: dict) -> List[str]:
+    """Генерирует персональные советы на основе статистики игрока."""
+    tips = []
+
+    # Совет на основе K/D
+    if analytics['kd_ratio'] < 0.9:
+        tips.append("Your K/D ratio is a bit low. Focus on survival and positioning to improve it.")
+    elif analytics['kd_ratio'] > 1.3:
+        tips.append("Excellent K/D ratio! You are a strong fragger for your team.")
+
+    # Совет на основе процента хедшотов
+    if analytics['hs_percent'] < 25:
+        tips.append("Consider practicing your aim on headshot-only servers to increase your headshot percentage.")
+    elif analytics['hs_percent'] > 50:
+        tips.append("Amazing headshot accuracy! Keep clicking those heads.")
+
+    # Совет на основе лучшей карты
+    if analytics['best_maps']:
+        best_map = analytics['best_maps'][0]
+        if best_map['win_rate'] > 60:
+            tips.append(f"You have a fantastic win rate on {best_map['name']}. It's your playground!")
+
+    # Совет на основе любимого оружия
+    if analytics['favorite_weapon'] in ['AK-47', 'M4A4', 'M4A1-S']:
+        tips.append(f"Mastering the {analytics['favorite_weapon']} is key. Keep up the good work.")
+    elif analytics['favorite_weapon'] == 'AWP':
+        tips.append("As an AWPer, your positioning is crucial. Make every shot count.")
+
+    return tips
+
+
+@app.get("/profile/{nickname}")
+async def get_profile_analytics(nickname: str):
+    """Возвращает расширенную аналитику по профилю игрока."""
+    try:
+        player_id = await faceit.get_player_id(nickname)
+        if not player_id:
+            raise HTTPException(status_code=404, detail=f"Player '{nickname}' not found")
+
+        analytics = await faceit.get_player_profile_analytics(player_id)
+
+        # Добавляем персональные советы
+        analytics['tips'] = generate_profile_tips(analytics)
+
+        return analytics
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"FACEIT API error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/match-report/{match_id}")
+async def get_match_report(match_id: str):
+    """Возвращает детальную статистику по завершенному матчу."""
+    try:
+        stats = await faceit.get_match_stats(match_id)
+
+        # Обрабатываем данные для удобного отображения на фронтенде
+        report = {
+            'map': stats['rounds'][0]['round_stats']['Map'],
+            'score': stats['rounds'][0]['round_stats']['Score'],
+            'teams': []
+        }
+
+        for team in stats['rounds'][0]['teams']:
+            team_details = {
+                'name': team['team_stats']['Team'],
+                'players': sorted(team['players'], key=lambda p: int(p['player_stats']['Kills']), reverse=True)
+            }
+            report['teams'].append(team_details)
+
+        return report
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"FACEIT API error: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/compare-with-pro/{player_id}")
+async def compare_with_pro(player_id: str):
+    """Сравнивает статистику игрока со случайным про-игроком из базы."""
+    try:
+        # 1. Получаем статистику нашего игрока
+        player_stats_task = faceit.get_player_stats(player_id)
+
+        # 2. Получаем случайного про-игрока из нашей БД
+        pro_player_data, count = supabase.rpc('get_random_pro_player', {}).execute()
+        if not pro_player_data[1]:
+            raise HTTPException(status_code=404, detail="No pro players found in the database.")
+
+        pro_player = pro_player_data[1][0]
+        pro_player_name = pro_player['name']
+        pro_player_id = pro_player['faceit_id']
+
+        # 3. Получаем статистику про-игрока
+        pro_stats_task = faceit.get_player_stats(pro_player_id)
+
+        # Выполняем запросы параллельно
+        player_stats, pro_stats = await asyncio.gather(player_stats_task, pro_stats_task)
+
+        # 4. Сравниваем и генерируем вердикт
+        player_kd = float(player_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
+        pro_kd = float(pro_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
+
+        verdict = ""
+        if player_kd >= pro_kd * 0.95: # Если K/D составляет 95% от K/D про-игрока
+            verdict = f"В этом матче твой K/D на уровне {pro_player_name}!"
+        elif player_kd > pro_kd * 0.8:
+            verdict = f"Отличный результат! Ты почти догнал {pro_player_name} по K/D."
+        else:
+            verdict = f"Продолжай тренироваться, и однажды твой K/D будет как у {pro_player_name}."
+
+        return {"verdict": verdict, "player_kd": player_kd, "pro_player": pro_player_name, "pro_kd": pro_kd}
+
+    except Exception as e:
+        # Возвращаем пустой объект в случае ошибки, чтобы не ломать фронтен-д
+        return {"verdict": None}
 
 # --- Инструкция по запуску ---
 # Чтобы запустить сервер локально, выполните в терминале из папки backend:
