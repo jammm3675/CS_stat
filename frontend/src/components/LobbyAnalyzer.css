@@ -108,16 +108,56 @@
   margin-bottom: 8px;
 }
 
+.player-main-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .player-nickname {
-  margin: 0 0 8px;
+  margin: 0;
   font-weight: bold;
+}
+
+.player-elo {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--tg-theme-link-color);
+}
+
+.player-secondary-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 13px;
+  color: var(--tg-theme-hint-color);
+}
+
+.stat-up {
+  color: #4caf50; /* Зеленый для улучшения */
+}
+
+.stat-down {
+  color: #f44336; /* Красный для ухудшения */
+}
+
+.pro-verdict-section {
+  margin-top: 20px;
+  background-color: rgba(255, 215, 0, 0.1);
+  border: 1px solid #ffd700;
+  padding: 10px 15px;
+  border-radius: 8px;
   text-align: center;
 }
 
-.player-stats {
-  display: flex;
-  justify-content: space-around;
-  font-size: 14px;
+.pro-verdict-section h4 {
+  margin: 0 0 10px;
+  color: #ffd700;
+}
+
+.pro-verdict-section p {
+  margin: 0;
+  font-size: 16px;
 }
 /* Дополнительные стили для кнопок */
 

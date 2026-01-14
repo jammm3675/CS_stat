@@ -116,4 +116,31 @@ CREATE TABLE match_history (
   weak_link_nickname VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Таблица для хранения данных про-игроков (для функции "Сравнение с Про")
+CREATE TABLE pro_players (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  faceit_id VARCHAR(255) UNIQUE NOT NULL,
+  -- Здесь можно хранить их средние показатели, чтобы не дергать API постоянно,
+  -- но для начала достаточно ID
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Наполняем таблицу несколькими известными игроками
+-- Важно: эти FACEIT ID могут устареть. Их нужно будет проверить.
+INSERT INTO pro_players (name, faceit_id) VALUES
+  ('donk', 'c0e39b99-1b0d-4a7b-8b0a-2b0c3d9b1b3a'),
+  ('ZywOo', 'bf7b6a03-7030-45a3-b233-a33748f3b015'),
+  ('m0NESY', '8f828e83-2617-464c-96a5-711d9b329c38'),
+  ('s1mple', '0df9ad5c-8e39-4a4c-9304-68802d380e11');
+
+-- Функция для получения случайного про-игрока
+CREATE OR REPLACE FUNCTION get_random_pro_player()
+RETURNS SETOF pro_players AS $$
+BEGIN
+  RETURN QUERY SELECT * FROM pro_players ORDER BY RANDOM() LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
 ```

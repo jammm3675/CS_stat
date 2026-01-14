@@ -7,10 +7,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 // (Хорошая практика в TypeScript - определять формы данных)
 
 export interface PlayerStats {
+  player_id: string; // Добавлено для запроса сравнения с про
   nickname: string;
   elo: number;
   win_rate: number;
   kd_ratio: number;
+  recent_kd_ratio: number; // Новое поле
   hs_percent: number;
   map_win_rate: number | null;
 }
@@ -20,6 +22,11 @@ export interface TeamAnalysis {
   avg_map_wr: number;
   players: PlayerStats[];
 }
+
+export interface ProComparisonResult {
+  verdict: string;
+}
+
 
 export interface LobbyAnalysisResult {
   match_id: string;
@@ -141,4 +148,11 @@ export const getProfileAnalytics = (nickname: string): Promise<ProfileAnalyticsR
  */
 export const getMatchReport = (matchId: string): Promise<MatchReportResult> => {
   return fetchApi(`/match-report/${matchId}`);
+};
+
+/**
+ * Сравнивает статистику игрока с профессиональным игроком.
+ */
+export const compareWithPro = (playerId: string): Promise<ProComparisonResult> => {
+  return fetchApi(`/compare-with-pro/${playerId}`);
 };

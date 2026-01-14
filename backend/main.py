@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from supabase import create_client, Client
 from dotenv import load_dotenv
+import httpx
 
 # Импортируем наши функции для работы с FACEIT API
 import faceit_api as faceit
@@ -45,28 +46,36 @@ class DuelRequest(BaseModel):
 # --- Логика анализа (хелперы) ---
 
 async def calculate_player_stats(player_id: str, nickname: str, map_name: str = None):
-    """Асинхронно получает и рассчитывает статистику игрока, включая винрейт на карте."""
+    """Асинхронно получает и рассчитывает статистику игрока, включая ELO, K/D за 20 матчей и винрейт на карте."""
+    # Создаем задачи для параллельного выполнения
+    details_task = faceit.get_player_details(player_id)
     stats_task = faceit.get_player_stats(player_id)
+    history_task = faceit.get_player_match_history(player_id, limit=20)
+    map_stats_task = faceit.get_player_stats_for_map(player_id, map_name) if map_name else asyncio.sleep(0)
 
-    map_stats_task = None
-    if map_name:
-        map_stats_task = faceit.get_player_stats_for_map(player_id, map_name)
+    # Выполняем все запросы одновременно
+    details, stats, history, map_stats = await asyncio.gather(
+        details_task, stats_task, history_task, map_stats_task
+    )
 
-    # Параллельно выполняем запросы
-    results = await asyncio.gather(stats_task, map_stats_task)
-
-    stats = results[0]
-    map_stats = results[1]
+    # Расчет K/D за последние 20 матчей
+    recent_kd = 0
+    if history:
+        total_kills = sum(int(m.get('i6', 0)) for m in history) # i6 = Kills
+        total_deaths = sum(int(m.get('i8', 0)) for m in history) # i8 = Deaths
+        recent_kd = round(total_kills / (total_deaths or 1), 2)
 
     lifetime_stats = stats.get('lifetime', {})
 
     player_data = {
+        'player_id': player_id, # Добавляем FACEIT ID
         'nickname': nickname,
-        'elo': int(stats.get('games', {}).get('cs2', {}).get('faceit_elo', 1000)),
+        'elo': details.get('games', {}).get('cs2', {}).get('faceit_elo', 1000),
         'win_rate': float(lifetime_stats.get('Win Rate %', 0)),
         'kd_ratio': float(lifetime_stats.get('Average K/D Ratio', 0)),
+        'recent_kd_ratio': recent_kd,
         'hs_percent': float(lifetime_stats.get('Average Headshots %', 0)),
-        'map_win_rate': map_stats.get('win_rate') if map_stats else None
+        'map_win_rate': map_stats.get('win_rate') if map_name and map_stats else None
     }
     return player_data
 
@@ -322,6 +331,45 @@ async def get_match_report(match_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/compare-with-pro/{player_id}")
+async def compare_with_pro(player_id: str):
+    """Сравнивает статистику игрока со случайным про-игроком из базы."""
+    try:
+        # 1. Получаем статистику нашего игрока
+        player_stats_task = faceit.get_player_stats(player_id)
+
+        # 2. Получаем случайного про-игрока из нашей БД
+        pro_player_data, count = supabase.rpc('get_random_pro_player', {}).execute()
+        if not pro_player_data[1]:
+            raise HTTPException(status_code=404, detail="No pro players found in the database.")
+
+        pro_player = pro_player_data[1][0]
+        pro_player_name = pro_player['name']
+        pro_player_id = pro_player['faceit_id']
+
+        # 3. Получаем статистику про-игрока
+        pro_stats_task = faceit.get_player_stats(pro_player_id)
+
+        # Выполняем запросы параллельно
+        player_stats, pro_stats = await asyncio.gather(player_stats_task, pro_stats_task)
+
+        # 4. Сравниваем и генерируем вердикт
+        player_kd = float(player_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
+        pro_kd = float(pro_stats.get('lifetime', {}).get('Average K/D Ratio', 0))
+
+        verdict = ""
+        if player_kd >= pro_kd * 0.95: # Если K/D составляет 95% от K/D про-игрока
+            verdict = f"В этом матче твой K/D на уровне {pro_player_name}!"
+        elif player_kd > pro_kd * 0.8:
+            verdict = f"Отличный результат! Ты почти догнал {pro_player_name} по K/D."
+        else:
+            verdict = f"Продолжай тренироваться, и однажды твой K/D будет как у {pro_player_name}."
+
+        return {"verdict": verdict, "player_kd": player_kd, "pro_player": pro_player_name, "pro_kd": pro_kd}
+
+    except Exception as e:
+        # Возвращаем пустой объект в случае ошибки, чтобы не ломать фронтен-д
+        return {"verdict": None}
 
 # --- Инструкция по запуску ---
 # Чтобы запустить сервер локально, выполните в терминале из папки backend:

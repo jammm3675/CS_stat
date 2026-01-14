@@ -17,27 +17,12 @@ const DuelStat = ({ label, value1, value2 }: { label: string, value1: number, va
   );
 };
 
-interface DuelModeProps {
-  telegramId: number | null;
-  faceitNickname: string | null;
-}
-
-type DuelModeType = 'stats' | 'manual';
-
-const DuelMode = ({ telegramId, faceitNickname }: DuelModeProps) => {
-  const [mode, setMode] = useState<DuelModeType>('stats');
-  const [nickname1, setNickname1] = useState(faceitNickname || '');
+const DuelMode = () => {
+  const [nickname1, setNickname1] = useState('');
   const [nickname2, setNickname2] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DuelResult | null>(null);
-
-  // State for manual mode
-  const [manualStats, setManualStats] = useState({
-    player1: { morale: 50, experience: 50, clutch: 50 },
-    player2: { morale: 50, experience: 50, clutch: 50 },
-  });
-  const [manualResult, setManualResult] = useState<string | null>(null);
 
   const handleCompare = async () => {
     if (!nickname1 || !nickname2) {
@@ -63,72 +48,31 @@ const DuelMode = ({ telegramId, faceitNickname }: DuelModeProps) => {
     return result ? result[nickname] : null;
   };
 
-  const handleManualStatChange = (player: 'player1' | 'player2', stat: string, value: number) => {
-    setManualStats(prev => ({
-      ...prev,
-      [player]: { ...prev[player], [stat]: value }
-    }));
-  };
-
-  const handleManualPredict = () => {
-    const score1 = Object.values(manualStats.player1).reduce((a, b) => a + b, 0);
-    const score2 = Object.values(manualStats.player2).reduce((a, b) => a + b, 0);
-
-    let winner = 'It is a close call!';
-    if (score1 > score2 * 1.1) winner = `${nickname1 || 'Player 1'} has the edge!`;
-    if (score2 > score1 * 1.1) winner = `${nickname2 || 'Player 2'} looks stronger!`;
-
-    setManualResult(winner);
-  };
-
-  const renderStatsMode = () => (
-    <>
-      <div className="duel-inputs">
-        <input type="text" value={nickname1} onChange={(e) => setNickname1(e.target.value)} placeholder="Player 1 nickname" disabled={loading} />
-        <input type="text" value={nickname2} onChange={(e) => setNickname2(e.target.value)} placeholder="Player 2 nickname" disabled={loading} />
-      </div>
-      <button onClick={handleCompare} disabled={loading}>{loading ? 'Comparing...' : 'Compare Stats'}</button>
-    </>
-  );
-
-  const renderManualMode = () => (
-    <>
-      <div className="manual-sliders">
-        <div className="player-sliders">
-          <h4>{nickname1 || 'Player 1'}</h4>
-          <label>Morale: {manualStats.player1.morale}</label>
-          <input type="range" min="0" max="100" value={manualStats.player1.morale} onChange={(e) => handleManualStatChange('player1', 'morale', +e.target.value)} />
-          <label>Experience: {manualStats.player1.experience}</label>
-          <input type="range" min="0" max="100" value={manualStats.player1.experience} onChange={(e) => handleManualStatChange('player1', 'experience', +e.target.value)} />
-          <label>Clutch Factor: {manualStats.player1.clutch}</label>
-          <input type="range" min="0" max="100" value={manualStats.player1.clutch} onChange={(e) => handleManualStatChange('player1', 'clutch', +e.target.value)} />
-        </div>
-        <div className="player-sliders">
-          <h4>{nickname2 || 'Player 2'}</h4>
-          <label>Morale: {manualStats.player2.morale}</label>
-          <input type="range" min="0" max="100" value={manualStats.player2.morale} onChange={(e) => handleManualStatChange('player2', 'morale', +e.target.value)} />
-          <label>Experience: {manualStats.player2.experience}</label>
-          <input type="range" min="0" max="100" value={manualStats.player2.experience} onChange={(e) => handleManualStatChange('player2', 'experience', +e.target.value)} />
-          <label>Clutch Factor: {manualStats.player2.clutch}</label>
-          <input type="range" min="0" max="100" value={manualStats.player2.clutch} onChange={(e) => handleManualStatChange('player2', 'clutch', +e.target.value)} />
-        </div>
-      </div>
-      <button onClick={handleManualPredict}>Predict Winner</button>
-    </>
-  );
-
   return (
     <div>
-      <div className="mode-toggle">
-        <button className={mode === 'stats' ? 'active' : ''} onClick={() => setMode('stats')}>Stats</button>
-        <button className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>VS Builder</button>
+      <div className="duel-inputs">
+        <input
+          type="text"
+          value={nickname1}
+          onChange={(e) => setNickname1(e.target.value)}
+          placeholder="Player 1 nickname"
+          disabled={loading}
+        />
+        <input
+          type="text"
+          value={nickname2}
+          onChange={(e) => setNickname2(e.target.value)}
+          placeholder="Player 2 nickname"
+          disabled={loading}
+        />
       </div>
-
-      {mode === 'stats' ? renderStatsMode() : renderManualMode()}
+      <button onClick={handleCompare} disabled={loading}>
+        {loading ? 'Comparing...' : 'Compare'}
+      </button>
 
       {error && <p className="error-message">{error}</p>}
 
-      {mode === 'stats' && result && (
+      {result && (
         <div className="duel-result">
           <div className="duel-header">
             <h3>{nickname1}</h3>
@@ -145,13 +89,6 @@ const DuelMode = ({ telegramId, faceitNickname }: DuelModeProps) => {
               </>
             )}
           </div>
-        </div>
-      )}
-
-      {mode === 'manual' && manualResult && (
-        <div className="manual-result">
-          <h3>Prediction</h3>
-          <p>{manualResult}</p>
         </div>
       )}
     </div>
