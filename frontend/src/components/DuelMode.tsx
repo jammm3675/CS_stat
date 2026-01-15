@@ -17,13 +17,8 @@ const DuelStat = ({ label, value1, value2 }: { label: string, value1: number, va
   );
 };
 
-interface DuelModeProps {
-  telegramId: number | null;
-  faceitNickname: string | null;
-}
-
-const DuelMode = ({ telegramId, faceitNickname }: DuelModeProps) => {
-  const [nickname1, setNickname1] = useState(faceitNickname || '');
+const DuelMode = () => {
+  const [nickname1, setNickname1] = useState('');
   const [nickname2, setNickname2] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
