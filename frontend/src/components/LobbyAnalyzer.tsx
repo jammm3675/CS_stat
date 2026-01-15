@@ -1,10 +1,11 @@
 // frontend/src/components/LobbyAnalyzer.tsx
-import React, { useState } from 'react';
-import { analyzeLobby, LobbyAnalysisResult, compareWithPro } from '../api';
-import SkeletonLoader from './SkeletonLoader';
-import './LobbyAnalyzer.css';
+import React, { useState, useEffect } from 'react';
+import WebApp from '@twa-dev/sdk';
+import { analyzeLobby, saveUserNickname, getUserNickname, LobbyAnalysisResult, compareWithPro } from '../api';
+import SkeletonLoader from './SkeletonLoader'; // Импортируем наш лоадер
+import './LobbyAnalyzer.css'; // Добавим стили для этого компонента
 
-// Вспомогательный компонент для отображения карточки игрока из ветки main
+// Вспомогательный компонент для отображения карточки игрока
 const PlayerCard = ({ stats, mapName }: { stats: any, mapName: string | null }) => (
   <div className="player-card">
     <div className="player-main-stats">
@@ -25,21 +26,50 @@ const PlayerCard = ({ stats, mapName }: { stats: any, mapName: string | null }) 
   </div>
 );
 
-interface LobbyAnalyzerProps {
-  telegramId: number | null;
-  faceitNickname: string | null;
-}
 
-const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
-  const [nickname, setNickname] = useState(faceitNickname || '');
+const LobbyAnalyzer = () => {
+  const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LobbyAnalysisResult | null>(null);
   const [proVerdict, setProVerdict] = useState<string | null>(null);
 
-  const handleAnalyze = async (nicknameToAnalyze: string | null) => {
+  // Пытаемся получить сохраненный никнейм при загрузке компонента
+  useEffect(() => {
+    const fetchNickname = async () => {
+      if (WebApp.initDataUnsafe?.user?.id) {
+        try {
+          const data = await getUserNickname(WebApp.initDataUnsafe.user.id);
+          setNickname(data.faceit_nickname);
+        } catch (err) {
+          console.log("No saved nickname found.");
+        }
+      }
+    };
+    fetchNickname();
+  }, []);
+
+  const handleAnalyze = async (useSavedNickname = false) => {
+    let nicknameToAnalyze = nickname;
+
+    if (useSavedNickname) {
+      if (WebApp.initDataUnsafe?.user?.id) {
+        try {
+          const data = await getUserNickname(WebApp.initDataUnsafe.user.id);
+          nicknameToAnalyze = data.faceit_nickname;
+          setNickname(nicknameToAnalyze); // Обновляем поле ввода
+        } catch (err) {
+          setError("You don't have a saved nickname yet. Please enter it first.");
+          return;
+        }
+      } else {
+        setError("Telegram user ID not found.");
+        return;
+      }
+    }
+
     if (!nicknameToAnalyze) {
-      setError('Nickname not provided. Please enter a nickname.');
+      setError('Please enter a nickname.');
       return;
     }
 
@@ -52,14 +82,20 @@ const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
       const data = await analyzeLobby(nicknameToAnalyze);
       setResult(data);
 
-      // После успешного анализа, запрашиваем сравнение с про из ветки main
+      // После успешного анализа, запрашиваем сравнение с про
       const currentUser = data.player_team.players.find(p => p.nickname.toLowerCase() === nicknameToAnalyze.toLowerCase());
-      if (currentUser && currentUser.player_id) {
+      if (currentUser) {
         const proData = await compareWithPro(currentUser.player_id);
         if (proData.verdict) {
           setProVerdict(proData.verdict);
         }
       }
+
+      // Сохраняем никнейм для будущего использования, если он был введен вручную
+      if (!useSavedNickname && WebApp.initDataUnsafe?.user?.id) {
+        await saveUserNickname(WebApp.initDataUnsafe.user.id, nicknameToAnalyze);
+      }
+
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
     } finally {
@@ -73,14 +109,14 @@ const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
         type="text"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        placeholder="Enter a FACEIT nickname"
+        placeholder="Enter your FACEIT nickname"
         disabled={loading}
       />
       <div className="button-group">
-        <button className="main-button" onClick={() => handleAnalyze(nickname)} disabled={loading}>
+        <button className="main-button" onClick={() => handleAnalyze()} disabled={loading}>
           {loading ? 'Analyzing...' : 'Analyze Nickname'}
         </button>
-        <button className="secondary-button" onClick={() => handleAnalyze(faceitNickname)} disabled={loading}>
+        <button className="secondary-button" onClick={() => handleAnalyze(true)} disabled={loading}>
           Find My Match
         </button>
       </div>
@@ -130,7 +166,6 @@ const LobbyAnalyzer = ({ telegramId, faceitNickname }: LobbyAnalyzerProps) => {
             </div>
           </div>
 
-          {/* Секция сравнения с про из ветки main */}
           {proVerdict && (
             <div className="pro-verdict-section">
               <h4>🏆 Pro Comparison</h4>

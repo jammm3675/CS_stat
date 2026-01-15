@@ -4,98 +4,34 @@ import WebApp from '@twa-dev/sdk';
 import LobbyAnalyzer from './components/LobbyAnalyzer';
 import DuelMode from './components/DuelMode';
 import History from './components/History';
-import ProfileAnalytics from './components/ProfileAnalytics';
-import { getUserNickname, saveUserNickname } from './api';
-import './App.css';
+import './App.css'; // Создадим этот файл для стилей App компонента
 
 // Определяем тип для текущего экрана
-type Screen = 'analyze' | 'duel' | 'history' | 'profile';
+type Screen = 'analyze' | 'duel' | 'history';
 
 function App() {
-  const [screen, setScreen] = useState<Screen>('profile');
-  const [telegramId, setTelegramId] = useState<number | null>(null);
-  const [faceitNickname, setFaceitNickname] = useState<string | null>(null);
-  const [nicknameInput, setNicknameInput] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [screen, setScreen] = useState<Screen>('analyze');
 
-
+  // Эффект для инициализации SDK и настройки темы
   useEffect(() => {
-    const init = async () => {
-      if (WebApp.initDataUnsafe.user) {
-        const tId = WebApp.initDataUnsafe.user.id;
-        setTelegramId(tId);
-        try {
-          const data = await getUserNickname(tId);
-          setFaceitNickname(data.faceit_nickname);
-        } catch (error) {
-          // Никнейм не найден, это нормальное поведение
-        }
-      }
-      setIsLoading(false);
-    };
-
+    // Устанавливаем цветовую схему Telegram на "dark"
     WebApp.ready();
     WebApp.setHeaderColor('secondary_bg_color');
-    init();
   }, []);
 
-  const handleSaveNickname = async () => {
-    if (!telegramId || !nicknameInput) {
-      setError('Please enter a nickname.');
-      return;
-    }
-    setError(null);
-    try {
-      await saveUserNickname(telegramId, nicknameInput);
-      setFaceitNickname(nicknameInput);
-    } catch (err: any) {
-      setError(err.message || 'Failed to save nickname.');
+  // Функция для рендеринга активного экрана
+  const renderScreen = () => {
+    switch (screen) {
+      case 'analyze':
+        return <LobbyAnalyzer />;
+      case 'duel':
+        return <DuelMode />;
+      case 'history':
+        return <History />;
+      default:
+        return <LobbyAnalyzer />;
     }
   };
-
-  const renderContent = () => {
-    if (isLoading) {
-      return <p>Loading...</p>;
-    }
-
-    if (!faceitNickname) {
-      return (
-        <div className="nickname-prompt">
-          <h2>Enter Your FACEIT Nickname</h2>
-          <p>This will be saved for quick access to your stats and match analysis.</p>
-          <input
-            type="text"
-            value={nicknameInput}
-            onChange={(e) => setNicknameInput(e.target.value)}
-            placeholder="Your FACEIT nickname"
-          />
-          <button onClick={handleSaveNickname}>Save Nickname</button>
-          {error && <p className="error-message">{error}</p>}
-        </div>
-      );
-    }
-
-    // Функция для рендеринга активного экрана
-    const renderScreen = () => {
-      const props = { telegramId, faceitNickname };
-      switch (screen) {
-        case 'analyze':
-          return <LobbyAnalyzer {...props} />;
-        case 'duel':
-          return <DuelMode {...props} />;
-        case 'history':
-          return <History {...props} />;
-        case 'profile':
-          return <ProfileAnalytics {...props} />;
-        default:
-          return <ProfileAnalytics {...props} />;
-      }
-    };
-
-    return renderScreen();
-  }
-
 
   return (
     <div className="App">
@@ -106,12 +42,6 @@ function App() {
 
       {/* Навигация (табы) */}
       <nav className="App-nav">
-        <button
-          className={screen === 'profile' ? 'active' : ''}
-          onClick={() => setScreen('profile')}
-        >
-          Profile
-        </button>
         <button
           className={screen === 'analyze' ? 'active' : ''}
           onClick={() => setScreen('analyze')}
@@ -133,7 +63,7 @@ function App() {
       </nav>
 
       <main>
-        {renderContent()}
+        {renderScreen()}
       </main>
     </div>
   );
